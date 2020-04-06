@@ -1,0 +1,21 @@
+#palavrasTableDiv {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+td {
+    padding: 0 !important;
+}
+
+.desactive {
+    cursor: not-allowed;
+}
+
+.pagina {
+    max-height: 200px;
+}
+
+div[id^='pagina'] {
+    max-height: 250px;
+    overflow-y: auto;
+}
