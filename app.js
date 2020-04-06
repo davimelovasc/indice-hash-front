@@ -5,6 +5,7 @@ let countPerScroll = 200;
 
 let tuplas;
 let paginas;
+let buckets;
 
 $(document).ready(function() {
 
@@ -44,6 +45,14 @@ $(document).ready(function() {
     $("#searchPage").click(function(ev) {
         let pageNum = $("#searchPageInput").val()
         loadPage(pageNum)
+    })
+
+    $("#buscarBtn").click(function() {
+        let term = $("#buscarPalavra").val()
+        $.get( BASE_URL + `/serch?term=${term}`, function(data) {
+            console.log(data)
+            buckets = data
+        })
     })
 
 })
