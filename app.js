@@ -33,8 +33,7 @@ $(document).ready(function() {
                 updateInputFields()
                 
                 $.get( BASE_URL + '/get-stats', function(res) {
-                    
-                    updateBucketsInfoUi(res['taxaOverflow'], res['taxaColisao'])
+                    updateBucketsInfoUi(res['taxaOverflow'], res['taxaColisao'], res['qtdBuckets'], res['tamBucket'])
                 })
                 
             } )
@@ -59,12 +58,13 @@ $(document).ready(function() {
         $(".highlight").removeClass("highlight")
         
         let term = $("#buscarPalavra").val()
-        $.get( BASE_URL + `/serch?term=${term}`, function(data) {
+        $.get( BASE_URL + `/search?term=${term}`, function(data) {
             console.log(data)
+            alert("Acessos a disco: " + data['acesso_disco'])
             loadPage(data['page_number'])
             loadBucket(data['bucket_number'])
 
-            highlightWorld(data['cb'], data['page_number'], data['bucket_number'])
+            highlightWorld(data['cb'], data['page_number'], data['bucket_number'], term)
         })
     })
 
@@ -79,7 +79,7 @@ function loadTuplas(scrollCount) {
     let tuplasToAdd = tuplas.slice(tableScrollCount*countPerScroll, (tableScrollCount+1)*countPerScroll);
     $.each(tuplasToAdd, function( i, val ) {
         $("#palavrasTable tbody").append(`
-        <tr>
+        <tr cb=${val['chaveDeBusca']}>
             <td>${val['chaveDeBusca']}</td>
             <td>${val['palavra']}</td>
         </tr>`)
@@ -104,11 +104,13 @@ function loadPage(pageNum) {
         </div>
     `)
     $.each(page['tuplas'], function( i, val ) {
-        $(`#pagina${page['endereco']}Table tbody`).append(`
-        <tr cb=${val['chaveDeBusca']}>
-            <td>${val['chaveDeBusca']}</td>
-            <td>${val['palavra']}</td>
-        </tr>`)
+        if(val != null){
+            $(`#pagina${page['endereco']}Table tbody`).append(`
+            <tr cb=${val['chaveDeBusca']}>
+                <td>${val['chaveDeBusca']}</td>
+                <td>${val['palavra']}</td>
+            </tr>`)
+        }
     })
 
 }
@@ -122,16 +124,17 @@ function updateInputFields() {
     $(".pagesContainer, .bucketsContainer").removeClass("d-none")
 }
 
-function updateBucketsInfoUi(taxaOverflow, taxaColisao) {
-    $("#totalBuckets").text(buckets.length - 1)
-    $("#tamanhoBuckets").text(buckets[0].tamanho)
+function updateBucketsInfoUi(taxaOverflow, taxaColisao, totalBuckets, tamanhoBucket) {
+    $("#totalBuckets").text(buckets.length)
+    $("#totalBucketsOverflow").text(totalBuckets)
+    $("#tamanhoBuckets").text(tamanhoBucket)
 
     $("#taxaOverflow").text(taxaOverflow + "%")
     $("#taxaColisao").text(taxaColisao + "%")
 }
 
 function loadBucket(bucketNum) {
-    let bucket = buckets[bucketNum]
+    let bucket = buckets.find(bkt => bkt.endereco == bucketNum)
     $("#bucketDiv").append(`
         <div class="col-3 mt-3" id="bucket${bucket['endereco']}" class="bucket">
             <h5 class="d-inline-block">Bucket ${bucket['endereco']}</h5> 
@@ -146,19 +149,52 @@ function loadBucket(bucketNum) {
             </table>
         </div>
     `)
-    for(let cb in buckets[bucketNum]["chavePagina"]) {
+    for(let cb in bucket["chavePagina"]) {
         $(`#bucket${bucket['endereco']}Table tbody`).append(`
         <tr cb=${cb}>
             <td>${cb}</td>
-            <td>${buckets[bucketNum]["chavePagina"][cb]}</td>
+            <td>${bucket["chavePagina"][cb]}</td>
         </tr>`)
+    }
+
+    let aux = bucket.bucket
+    while(aux != null) {
+        $(`#bucket${bucket['endereco']}Table tbody`).append(`<tr>
+            <td style="background-color: red">OVERFLOW</td>
+            <td style="background-color: red">OVERFLOW</td>
+        </tr>`)
+        for(let cb in aux["chavePagina"]) {
+            $(`#bucket${bucket['endereco']}Table tbody`).append(`
+            <tr cb=${cb}>
+                <td>${cb}</td>
+                <td>${aux["chavePagina"][cb]}</td>
+            </tr>`)
+        }
+        aux = aux.bucket
     }
 }
 
 
-function highlightWorld(cb, pageNumber, bucketNumber) {
+function highlightWorld(cb, pageNumber, bucketNumber, stringCB) {
     $(`#bucket${bucketNumber} tbody tr[cb=${cb}]`).addClass("highlight")
     $(`#pagina${pageNumber}Table tbody tr[cb=${cb}]`).addClass("highlight")
+    
+    if($(`#palavrasTable tbody tr[cb=${cb}]`)[0] === undefined) {
+        // $("#palavrasTable tbody tr:first").append(`
+        // <tr cb=${cb}>
+        //     <td>${cb}</td>
+        //     <td>${stringCB}</td>
+        // </tr>`);
+        $(`
+        <tr cb=${cb}>
+            <td>${cb}</td>
+            <td>${stringCB}</td>
+        </tr>`).insertBefore($("#palavrasTable tbody tr:first"));    
+    }
+    $(`#palavrasTable tbody tr[cb=${cb}]`).addClass("highlight")
 
-    //TODO SCROLL
+    var ele = document.getElementsByClassName("highlight");
+    ele[2].scrollIntoView();
+    ele[1].scrollIntoView();
+    ele[0].scrollIntoView();
 }
