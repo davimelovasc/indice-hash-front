@@ -9,11 +9,16 @@ let buckets;
 
 $(document).ready(function() {
 
+    $(".pagesContainer, .bucketsContainer").addClass("d-none")
+
     // carregar palavras
     $.get( BASE_URL, function(data) {
         tuplas = data
         $("#totalPalavras").text(tuplas.length)
         loadTuplas(0)
+        $("#loading").removeClass("d-flex").addClass("d-none")
+        $("main").removeClass("d-none")
+
     })
 
     $("#iniciarBtn").click(function(ev) {
@@ -24,10 +29,13 @@ $(document).ready(function() {
             paginas = data
             $("#totalPaginas").text(paginas.length)
             $.get( BASE_URL+'/generate-buckets', function(res) {
-                console.log("buckets: ")
-                console.log(res);
-
+                buckets = res
                 updateInputFields()
+                
+                $.get( BASE_URL + '/get-stats', function(res) {
+                    
+                    updateBucketsInfoUi(res['taxaOverflow'], res['taxaColisao'])
+                })
                 
             } )
         })
@@ -48,11 +56,21 @@ $(document).ready(function() {
     })
 
     $("#buscarBtn").click(function() {
+        $(".highlight").removeClass("highlight")
+        
         let term = $("#buscarPalavra").val()
         $.get( BASE_URL + `/serch?term=${term}`, function(data) {
             console.log(data)
-            buckets = data
+            loadPage(data['page_number'])
+            loadBucket(data['bucket_number'])
+
+            highlightWorld(data['cb'], data['page_number'], data['bucket_number'])
         })
+    })
+
+    $("#searchBucket").click(function() {
+        let bucketNum = $("#searchBucketInput").val()
+        loadBucket(bucketNum)
     })
 
 })
@@ -87,7 +105,7 @@ function loadPage(pageNum) {
     `)
     $.each(page['tuplas'], function( i, val ) {
         $(`#pagina${page['endereco']}Table tbody`).append(`
-        <tr>
+        <tr cb=${val['chaveDeBusca']}>
             <td>${val['chaveDeBusca']}</td>
             <td>${val['palavra']}</td>
         </tr>`)
@@ -101,4 +119,46 @@ function updateInputFields() {
 
     $("#iniciarBtn").prop("disabled", true).addClass("btn-secondary dasactive").removeClass("btn-primary")
     $("#valueParam01").prop("disabled", true)
+    $(".pagesContainer, .bucketsContainer").removeClass("d-none")
+}
+
+function updateBucketsInfoUi(taxaOverflow, taxaColisao) {
+    $("#totalBuckets").text(buckets.length - 1)
+    $("#tamanhoBuckets").text(buckets[0].tamanho)
+
+    $("#taxaOverflow").text(taxaOverflow + "%")
+    $("#taxaColisao").text(taxaColisao + "%")
+}
+
+function loadBucket(bucketNum) {
+    let bucket = buckets[bucketNum]
+    $("#bucketDiv").append(`
+        <div class="col-3 mt-3" id="bucket${bucket['endereco']}" class="bucket">
+            <h5 class="d-inline-block">Bucket ${bucket['endereco']}</h5> 
+            <table class="table" id="bucket${bucket['endereco']}Table">
+                <thead>
+                    <th>C.B.</th>
+                    <th>Endereço Pág.</th>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    `)
+    for(let cb in buckets[bucketNum]["chavePagina"]) {
+        $(`#bucket${bucket['endereco']}Table tbody`).append(`
+        <tr cb=${cb}>
+            <td>${cb}</td>
+            <td>${buckets[bucketNum]["chavePagina"][cb]}</td>
+        </tr>`)
+    }
+}
+
+
+function highlightWorld(cb, pageNumber, bucketNumber) {
+    $(`#bucket${bucketNumber} tbody tr[cb=${cb}]`).addClass("highlight")
+    $(`#pagina${pageNumber}Table tbody tr[cb=${cb}]`).addClass("highlight")
+
+    //TODO SCROLL
 }

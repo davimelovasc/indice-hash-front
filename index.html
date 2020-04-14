@@ -15,40 +15,47 @@
         <link rel="stylesheet" href="app.css" />
     </head>
     <body>
-        <div class="container">
+        <div class="container d-flex" id="loading">
             <div class="row">
-                <div class="col-12">
-                    <div class="card mt-3">
-                        <h5 class="card-header">Índice Hash Estático</h5>
-                        <div class="card-body row">
-                            <div class="custom-control custom-radio custom-control-inline ml-3" style="margin-top: 8px;">
-                                <input type="radio" id="radioNumeroPagina" name="param01" class="custom-control-input" checked value="numeroPaginas">
-                                <label class="custom-control-label" for="radioNumeroPagina">Número de páginas</label>
-                            </div>
-                            <div class="custom-control custom-radio custom-control-inline ml-2" style="margin-top: 8px;">
-                                <input type="radio" id="radioTamanhoPagina" name="param01" class="custom-control-input" value="tamanhoPaginas">
-                                <label class="custom-control-label" for="radioTamanhoPagina">Tamanho das páginas</label>
-                            </div>
-                            <div class="form-group d-inline-block ml-2">
-                                <input class="form-control" id="valueParam01" placeholder="Valor" type="number">
-                            </div>
-                            <div class="form-group d-inline-block ml-4 mr-4">
-                                <button id="iniciarBtn" class="btn btn-primary px-4">Iniciar</button>
-                            </div>
-                            <div class="form-group d-inline-block ml-2">
-                                <input class="form-control" id="buscarPalavra" placeholder="Buscar palavra" disabled>
-                            </div>
-                            
-                            <div class="form-group d-inline-block ml-4">
-                                <button id="buscarBtn" class="btn btn-secondary px-4" disabled>Buscar</button>
-                            </div>
-                                
-                            
-                        </div>
-
-
-                        </div>
+                <div class="col-12 text-center">
+                    <div class="spinner-grow text-primary" role="status" style="width: 25rem; height: 25rem;">
+                        <span class="sr-only">Loading...</span>
                       </div>
+                </div>
+            </div>
+        </div>
+        <main class="d-none">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mt-3">
+                            <h5 class="card-header">Índice Hash Estático</h5>
+                            <div class="card-body row">
+                                <div class="custom-control custom-radio custom-control-inline ml-3" style="margin-top: 8px;">
+                                    <input type="radio" id="radioNumeroPagina" name="param01" class="custom-control-input" checked value="numeroPaginas">
+                                    <label class="custom-control-label" for="radioNumeroPagina">Número de páginas</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline ml-2" style="margin-top: 8px;">
+                                    <input type="radio" id="radioTamanhoPagina" name="param01" class="custom-control-input" value="tamanhoPaginas">
+                                    <label class="custom-control-label" for="radioTamanhoPagina">Tamanho das páginas</label>
+                                </div>
+                                <div class="form-group d-inline-block ml-2">
+                                    <input class="form-control" id="valueParam01" placeholder="Valor" type="number">
+                                </div>
+                                <div class="form-group d-inline-block ml-4 mr-4">
+                                    <button id="iniciarBtn" class="btn btn-primary px-4">Iniciar</button>
+                                </div>
+                                <div class="form-group d-inline-block ml-2">
+                                    <input class="form-control" id="buscarPalavra" placeholder="Buscar palavra" disabled>
+                                </div>
+                                
+                                <div class="form-group d-inline-block ml-4">
+                                    <button id="buscarBtn" class="btn btn-secondary px-4" disabled>Buscar</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <hr>
@@ -66,7 +73,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="col-6">
+                    <div class="col-6 pagesContainer">
                         Total de páginas: <span id="totalPaginas"></span>
                         <div class="input-group my-3 w-50">
                             <input type="text" class="form-control" id="searchPageInput" placeholder="Informe o número da página">
@@ -77,22 +84,37 @@
                         <div class="row" id="pagesDiv">
                             
                         </div>
-     
+    
                     </div>
                 </div>
             </div>
             <hr/>
-            <div class="container">
+            <div class="container bucketsContainer">
                 <div class="row">
                     <div class="col-12" id="bucketsInfoDiv">
                         <h5>Buckets</h5>
-                        Total: <span id="totalBuckets"></span> <br/>
-                        Tamanho: <span id="tamanhoBuckets"></span> <br/>
-               
-                      
+                        Total: <span id="totalBuckets"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+                        Tamanho de cada bucket: <span id="tamanhoBuckets"></span> &nbsp;&nbsp;&nbsp;&nbsp;
+                        Taxa de overflows: <span id="taxaOverflow"></span> &nbsp;&nbsp;&nbsp;&nbsp;
+                        Taxa de colisão: <span id="taxaColisao"></span>&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+                        
+                    
+                    </div>
+                    <div class="col-12 bucketsContainer">
+                        <div class="input-group my-3 w-50">
+                            <input type="text" class="form-control" id="searchBucketInput" placeholder="Informe o número do bucket">
+                            <div class="input-group-append">
+                            <span class="input-group-text" id="searchBucket"><i class="fas fa-search"></i></span>
+                            </div>
+                        </div>
+                        <div class="row" id="bucketDiv">
+                            
+                        </div>
+    
                     </div>
                 </div>
             </div>
+        </main>
         
        <script src="app.js"></script>
     </body>
